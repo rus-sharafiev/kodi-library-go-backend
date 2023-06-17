@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
 	"rus-sharafiev/kodi/movies"
 	"rus-sharafiev/kodi/tvs"
 	"rus-sharafiev/kodi/web"
@@ -15,15 +16,20 @@ func main() {
 	router := mux.NewRouter()
 
 	// API
-	router.Handle("/api/movies", movies.Get()).Methods("GET")
-	router.Handle("/api/movies/{id}", movies.Get()).Methods("GET")
+	api := router.PathPrefix("/api").Subrouter()
 
-	router.Handle("/api/tvs", tvs.Get()).Methods("GET")
-	router.Handle("/api/tvs/{id}", tvs.Get()).Methods("GET")
+	// Movies
+	api.HandleFunc("/movies", movies.GetAll).Methods("GET")
+	api.HandleFunc("/movies/{id}", movies.GetOne).Methods("GET")
+
+	// Tvs
+	api.HandleFunc("/tvs", tvs.GetAll).Methods("GET")
+	api.HandleFunc("/tvs/{id}", tvs.GetOne).Methods("GET")
 
 	// Web server
 	router.PathPrefix("/").Handler(web.Server{StaticPath: "build", IndexPath: "index.html"})
 
+	// Start server
 	fmt.Printf("\n\x1b[2mHTTP server is running on http://localhost:8088/\n\n\x1b[0m")
 	log.Fatal(http.ListenAndServe(":8088", router))
 }
