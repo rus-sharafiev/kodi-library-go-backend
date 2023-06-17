@@ -27,7 +27,7 @@ func queryMovies(id string) string {
 		'art', a.arr,
 		'id', m.idMovie,
 		'title', m.c00,
-		'review', m.c01,
+		'description', m.c01,
 		'subtitle', m.c03,
 		'writer', m.c06,
 		'pgRating', m.c12,
@@ -60,7 +60,7 @@ func queryMovies(id string) string {
 		LEFT JOIN (
 			SELECT media_id, JSON_OBJECTAGG(type, url) arr
 			FROM art
-			group by art.media_id
+			GROUP BY art.media_id
 		) a
 		ON m.idMovie = a.media_id
 	`)
