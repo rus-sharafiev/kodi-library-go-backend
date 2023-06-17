@@ -6,26 +6,29 @@ import (
 	"path/filepath"
 )
 
-func Server() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+type Server struct {
+	StaticPath string
+	IndexPath  string
+}
 
-		path, err := filepath.Abs(r.URL.Path)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-		path = filepath.Join("build", path)
+	path, err := filepath.Abs(r.URL.Path)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
-		_, err = os.Stat(path)
-		if os.IsNotExist(err) {
-			http.ServeFile(w, r, filepath.Join("build", "index.html"))
-			return
-		} else if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+	path = filepath.Join(s.StaticPath, path)
 
-		http.FileServer(http.Dir("build")).ServeHTTP(w, r)
-	})
+	_, err = os.Stat(path)
+	if os.IsNotExist(err) {
+		http.ServeFile(w, r, filepath.Join(s.StaticPath, s.IndexPath))
+		return
+	} else if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	http.FileServer(http.Dir(s.StaticPath)).ServeHTTP(w, r)
 }
