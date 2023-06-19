@@ -8,17 +8,19 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func GetAll(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
-
-	result := queries.FindAll()
-	fmt.Fprint(w, result)
+func findAll(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, queries.FindAll())
 }
 
-func GetOne(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
+func findOne(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 
-	result := queries.FindOne(id)
-	fmt.Fprint(w, result)
+	fmt.Fprint(w, queries.FindOne(id))
+}
+
+func Controller(api *mux.Router) {
+	tvs := api.PathPrefix("/tvs").Subrouter()
+
+	tvs.HandleFunc("", findAll).Methods("GET")
+	tvs.HandleFunc("{id}/", findOne).Methods("GET")
 }

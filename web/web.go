@@ -6,12 +6,7 @@ import (
 	"path/filepath"
 )
 
-type Server struct {
-	StaticPath string
-	IndexPath  string
-}
-
-func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func Server(w http.ResponseWriter, r *http.Request) {
 
 	path, err := filepath.Abs(r.URL.Path)
 	if err != nil {
@@ -19,16 +14,16 @@ func (s Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	path = filepath.Join(s.StaticPath, path)
+	path = filepath.Join("build", path)
 
 	_, err = os.Stat(path)
 	if os.IsNotExist(err) {
-		http.ServeFile(w, r, filepath.Join(s.StaticPath, s.IndexPath))
+		http.ServeFile(w, r, filepath.Join("build", "index.html"))
 		return
 	} else if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	http.FileServer(http.Dir(s.StaticPath)).ServeHTTP(w, r)
+	http.FileServer(http.Dir("build")).ServeHTTP(w, r)
 }

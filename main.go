@@ -19,19 +19,15 @@ func main() {
 	// API
 	api := router.PathPrefix("/api").Subrouter()
 
-	// Movies
-	api.HandleFunc("/movies", movies.GetAll).Methods("GET")
-	api.HandleFunc("/movies/{id}", movies.GetOne).Methods("GET")
-
-	// Tvs
-	api.HandleFunc("/tvs", tvs.GetAll).Methods("GET")
-	api.HandleFunc("/tvs/{id}", tvs.GetOne).Methods("GET")
+	movies.Controller(api)
+	tvs.Controller(api)
 
 	// Web server
-	router.PathPrefix("/").Handler(web.Server{StaticPath: "build", IndexPath: "index.html"})
+	router.PathPrefix("/").HandlerFunc(web.Server)
 
+	// CORS
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:8000"},
+		AllowedOrigins:   []string{"http://10.10.10.10:8000", "http://localhost:8000"},
 		AllowCredentials: true,
 	})
 	handler := c.Handler(router)
