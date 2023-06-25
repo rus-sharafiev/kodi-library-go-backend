@@ -1,0 +1,13 @@
+[Unit]
+Description="Kodi library service"
+After=mysql.service
+
+[Service]
+ExecStart=/var/www/kodi/kodi
+WorkingDirectory=/var/www/kodi/
+Restart=always
+RestartSec=10
+SyslogIdentifier=KodiLibrary
+
+[Install]
+WantedBy=multi-user.target
